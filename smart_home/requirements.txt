@@ -1,0 +1,175 @@
+# 🏠 SMART HOME AI
+## HƯỚNG DẪN CÀI ĐẶT CHI TIẾT (PHIÊN BẢN LOCAL MQTT)
+**Linh kiện • Hệ thống MQTT • Python AI**
+
+### 1. Kiến Trúc Hệ Thống
+
+┌────────────────────────┐                                        ┌──────────────────────┐
+│     PHẦN CỨNG (ESP32)  │                                        │   MÁY CHỦ (LAPTOP)   │
+│                        │                                        │                      │
+│   ┌─────────────┐      │                                        │   ┌───────────────┐  │
+│   │   Cảm biến  │      │                                        │   │   Camera/Face │  │
+│   │ (DHT, PIR..)├──┐   │                                        │   │   Recognition │  │
+│   └─────────────┘  │   │                                        │   └───────┬───────┘  │
+│                    ▼   │        WiFi Local Network              │           ▼          │
+│             ┌────────┐ │       (Topic: home/room1/...)          │   ┌───────────────┐  │
+│             │  ESP32 ├─┼─────────────── MQTT ────────────────────┼─►│     Python    │  │
+│             └────┬───┘ │                                        │   │   (main.py)   │  │
+│                  │     │                                        │   └────┬─────┬───┘  │
+│   ┌─────────────┐│     │          ┌──────────────────┐          │        │     │      │
+│   │   Thiết bị  │◄─┘   │          │ Mosquitto Broker │          │        │     │      │
+│   │ (Relay, LED)│      │          │     (Port 1883)  │          │  ┌─────▼─┐ ┌─▼─────┐│
+│   └─────────────┘      │          └──────────────────┘          │  │ SQLite│ │ AI    ││
+└────────────────────────┘                                        │  │   DB  │ │ Model ││
+                                                                  │  └───────┘ └───────┘│
+                                                                  └──────────────────────┘
+
+•   **Phần cứng ESP32 (Edge Node):** Xử lý tín hiệu cảm biến DHT22 (Nhiệt/Ẩm), BH1750 (Sáng), PIR (Chuyển động) có tích hợp bộ lọc nhiễu (Debounce) và điều khiển Relay (đèn, quạt), LED RGB qua FreeRTOS.
+•   **Hệ thống MQTT (Mosquitto):** Chạy cục bộ trên Laptop (hoặc Raspberry Pi) đóng vai trò là Broker trung gian, giao tiếp dữ liệu siêu tốc độ không độ trễ.
+•   **Python AI (Laptop):** Máy chủ điều phối (Orchestrator) tích hợp nhận diện khuôn mặt thời gian thực (DeepFace lưu trữ JSON an toàn), Mô hình AI lai (Stacked LSTM trích xuất đặc trưng + XGBoost phân loại có Hysteresis), Cơ sở dữ liệu SQLite, và Command Line Interface (main.py).
+
+________________________________________
+### PHẦN 1: LINH KIỆN VÀ THIẾT BỊ CẦN CHUẨN BỊ
+**1.1 Bo mạch và Cảm biến**
+
+| Linh kiện | Số lượng | Ghi chú |
+| :--- | :---: | :--- |
+| ESP32 DOIT DevKit V1 | 1 | Board điều khiển chính, tích hợp WiFi. |
+| Cảm biến DHT22 | 1 | Đo nhiệt độ và độ ẩm. Bắt buộc cần điện trở pull-up 10kΩ nối từ chân DATA lên 3.3V (nếu dùng IC rời). |
+| Cảm biến ánh sáng BH1750 | 1 | Giao tiếp chuẩn I2C (SDA/SCL). |
+| Cảm biến chuyển động PIR (HC-SR501) | 1 | Phát hiện sự hiện diện, cung cấp nhãn dữ liệu cốt lõi cho Rule-based và XGBoost. |
+| Breadboard & Dây cắm | 1 bộ | Dùng loại 830 lỗ và dây cắm (Đực-Đực, Đực-Cái). |
+| Cáp micro-USB | 1 | Cáp phải hỗ trợ truyền dữ liệu (Data line) để nạp code. |
+
+**1.2 Thiết bị điều khiển & Ngoại vi**
+
+| Linh kiện | Số lượng | Ghi chú |
+| :--- | :---: | :--- |
+| Module Relay 5V (2 kênh) | 1 | Kích mức thấp (Active Low). Dùng để điều khiển Đèn/Quạt. |
+| LED RGB (Anode/Cathode) | 1 | Kèm 3 điện trở 220Ω cho các chân R, G, B để tránh cháy LED. |
+| Webcam USB / Camera Laptop | 1 | Dùng cho module Face Recognition. |
+| Nguồn 5V 2A | 1 | Cấp nguồn ngoài ổn định cho Relay nếu cổng USB laptop không đủ dòng. |
+
+________________________________________
+### PHẦN 2: PHẦN MỀM VÀ CÔNG CỤ CẦN THIẾT
+1.  **Mosquitto MQTT Broker:**
+    * Tải về và cài đặt từ: https://mosquitto.org/download/
+    * Đảm bảo service "Eclipse Mosquitto" đang chạy ngầm trên máy tính (Port mặc định: 1883).
+2.  **Python ≥ 3.10:** Tải từ python.org. (Nhớ tick chọn "Add Python to PATH" khi cài đặt).
+3.  **Arduino IDE ≥ 2.3:** Tải từ arduino.cc/en/software để biên dịch và nạp code C++ cho ESP32.
+4.  **VS Code:** Môi trường phát triển để chỉnh sửa mã nguồn Python/C++.
+
+________________________________________
+### PHẦN 3: SƠ ĐỒ ĐẤU NỐI MẠCH ĐIỆN
+Bảng kết nối chân GPIO ESP32 (Đã chuẩn hóa theo `main.cpp`)
+
+| GPIO ESP32 | Thiết bị | Chân nối | Ghi chú quan trọng |
+| :--- | :--- | :--- | :--- |
+| **GPIO 4** | DHT22 | DATA | Có điện trở 10kΩ kéo lên 3.3V. |
+| **GPIO 21** | BH1750 | SDA | Bus I2C Data. |
+| **GPIO 22** | BH1750 | SCL | Bus I2C Clock. |
+| **GPIO 32** | PIR HC-SR501 | OUT | Tín hiệu kích mức HIGH (3.3V) khi có người. |
+| **GPIO 26** | Relay Đèn | IN1 | Kéo xuống LOW (0V) để bật relay. |
+| **GPIO 27** | Relay Quạt | IN2 | Kéo xuống LOW (0V) để bật relay. |
+| **GPIO 13** | LED RGB | R (Đỏ) | PWM, qua trở 220Ω. |
+| **GPIO 25** | LED RGB | G (Xanh) | PWM, qua trở 220Ω. (Chú ý: Chân 25, không phải 12) |
+| **GPIO 14** | LED RGB | B (Dương)| PWM, qua trở 220Ω. |
+| **3.3V** | Cảm biến | VCC | Cấp nguồn logic cho DHT22, BH1750. |
+| **5V / Vin** | Relay, PIR | VCC | Cấp nguồn công suất 5V. |
+| **GND** | Tất cả | GND | Nối chung toàn bộ Mass (Ground) của hệ thống. |
+
+________________________________________
+### PHẦN 4: LẬP TRÌNH ESP32 VỚI MQTT (ARDUINO IDE)
+**Bước 1: Chuẩn bị Arduino IDE**
+1.  Vào `File` → `Preferences` → thêm URL sau vào *Additional boards manager URLs*:
+    `https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json`
+2.  Vào `Tools` → `Board` → `Boards Manager` → tìm và cài đặt **esp32** by Espressif Systems.
+3.  Vào `Tools` → `Manage Libraries` để cài đặt các thư viện:
+    * `PubSubClient` (Nick O'Leary) - Xử lý giao thức MQTT.
+    * `ArduinoJson` (Benoit Blanchon) - Parse JSON an toàn.
+    * `DHT sensor library` (Adafruit) + Adafruit Unified Sensor.
+    * `BH1750` (Christopher Laws).
+
+**Bước 2: Nạp Firmware**
+1.  Mở tệp `main.cpp`, điền cấu hình WiFi (`ssid`, `password`) và sửa `mqtt_server` thành IP LAN của Laptop.
+2.  Cắm cáp ESP32, chọn đúng Board (*DOIT ESP32 DEVKIT V1*) và Port COM.
+3.  Bấm **Upload**. (Nếu báo lỗi kết nối, giữ nút BOOT trên mạch lúc màn hình IDE hiện chữ "Connecting...").
+
+________________________________________
+### PHẦN 5: CÀI ĐẶT MÔI TRƯỜNG PYTHON (LAPTOP)
+**Bước 1: Cài đặt thư viện Python**
+Mở Terminal / Command Prompt (CMD) và thực hiện các lệnh:
+
+```bash
+# Di chuyển đến thư mục dự án
+cd D:\SmartHome\laptop
+
+# Tạo môi trường ảo
+python -m venv venv
+
+# Kích hoạt môi trường ảo
+venv\Scripts\activate      # Trên Windows
+source venv/bin/activate   # Trên Linux/macOS
+
+# Cài đặt các thư viện cốt lõi (Bổ sung python-dotenv để bảo mật)
+pip install paho-mqtt>=2.0.0 xgboost>=2.0.3 tensorflow>=2.16.0 scikit-learn>=1.4.0 numpy>=1.26.0 joblib>=1.3.0 opencv-python>=4.9.0 deepface>=0.0.93 tf-keras>=2.16.0 scipy>=1.11.0 python-dotenv
+
+(Lưu ý: Ở lần chạy nhận diện khuôn mặt đầu tiên, hệ thống sẽ tự tải trọng số mạng nơ-ron Facenet512 ~90MB).
+
+Bước 2: Cấu hình Môi trường Bảo mật (.env) & config.py
+Để bảo mật thông tin IP và mật khẩu (tránh lộ trên GitHub), hệ thống sử dụng file .env.
+Tạo một file có tên chính xác là .env nằm ngang hàng với file main.py và điền:
+MQTT_BROKER=192.168.x.x   # Điền IP LAN của máy tính
+MQTT_PORT=1883
+MQTT_USERNAME=
+MQTT_PASSWORD=
+
+Trong file config.py, hệ thống sẽ tự động đọc cấu hình từ file .env này. Bạn chỉ cần điều chỉnh các thông số còn lại trong config.py nếu muốn thay đổi camera hoặc file path:
+CAMERA_INDEX = 0                # 0 là webcam tích hợp, 1 là webcam rời
+MODEL_PATH   = "models/ai_model_hybrid.pkl" # Tiền tố tự động sinh file JSON/Joblib
+
+PHẦN 6: KHỞI ĐỘNG VÀ VẬN HÀNH HỆ THỐNG
+Khởi chạy Mosquitto Broker: Đảm bảo service MQTT đang chạy trên OS.
+
+Bật ESP32 Edge Node: Cấp nguồn mạch, mở Serial Monitor ở baud rate 115200 để xác nhận thông báo [WiFi] KET NOI THANH CONG! và tiến trình FreeRTOS gửi dữ liệu.
+
+Khởi tạo Dữ liệu Huấn luyện (Lần đầu):
+Trước khi chạy AI, hãy tạo tập dữ liệu mô phỏng chuỗi thời gian bằng công cụ:
+
+Bash
+python modules/training_data_generator.py --n 10000
+Khởi chạy Hệ thống Điều phối (Orchestrator):
+
+Bash
+python main.py
+Vận hành hệ thống kép (Dual Mode):
+
+Bấm phím [ENTER] để ngắt Live Log và truy cập Menu Điều khiển CLI.
+
+Sử dụng phím [5] để đăng ký khuôn mặt người dùng mới (cần ~15 góc mặt/người).
+
+Bấm phím [4] để ép hệ thống Train AI bằng tập dữ liệu sinh ra từ bước 3.
+
+Tận hưởng thành quả: Khi chuyển sang AI Mode (Menu phím [8]), hệ thống sẽ theo dõi chuỗi sự kiện thời gian (LSTM), nhận diện mặt bạn, áp dụng mã màu RGB thói quen và để mạng XGBoost quyết định trạng thái đóng cắt thiết bị một cách thông minh.
+
+PHẦN 7: XỬ LÝ LỖI THƯỜNG GẶP
+7.1 Về phía ESP32 & Phần cứng
+
+"Failed to connect to MQTT broker": Chắc chắn IP trong main.cpp (và file .env) là IP tĩnh cục bộ của máy tính (IPv4 Address trong lệnh ipconfig). Tường lửa Windows Defender Firewall phải cấp quyền Inbound/Outbound cho port 1883.
+
+Cảm biến DHT22 đọc ra NaN: Hệ thống hiện tại đã thiết kế bảo vệ chuỗi Time-series bằng cách giữ lại giá trị cũ (Rate of Change Filter), tuy nhiên bạn cần kiểm tra lại kết nối vật lý hoặc điện trở kéo lên ở chân DATA.
+
+7.2 Về phía Python (Server)
+
+Không nhận kết nối MQTT (Dù ESP32 báo đã gửi): Đảm bảo bạn cài đúng phiên bản paho-mqtt theo lệnh ở trên. (Hệ thống đã hỗ trợ ReasonCode tương thích chéo v1.x và v2.0+).
+
+AI tự động ngắt quạt sai ý muốn: Hệ thống đang chạy theo kịch bản mùa hè. Nó chỉ ngắt quạt khi phòng không người VÀ nhiệt độ mát mẻ (< 28°C). Thuật toán Hysteresis sẽ chống bật/tắt quạt liên tục ở vùng biên giới nhiệt độ.
+
+Camera đè lặp tín hiệu nhận diện: Hệ thống sử dụng cơ chế xóa bộ đệm (Debounce) độc lập cho từng user. Nếu camera khó nhận do môi trường tối, thuật toán CLAHE tích hợp sẵn sẽ tự động kéo sáng. Đảm bảo đứng cách camera 40-60cm.
+
+
+
+venv\Scripts\activate
+cd D:\TUAN TU\SMART_HOME\smart_home_MQTT\smart_home\laptop
+python -m modules.training_data_generator --days 30  (1 ngày có 720 mẫu)
+python web_server.py --live

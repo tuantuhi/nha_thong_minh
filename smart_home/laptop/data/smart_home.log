@@ -1,0 +1,83 @@
+[07:40:55] [INFO] MainApp: ============================================================
+[07:40:55] [INFO] MainApp:   Thiết kế hệ thống nhà thông minh dựa trên thói quen người dùng 
+[07:40:55] [INFO] MainApp:   [CHẾ ĐỘ CLI / DEBUG ĐỘC LẬP - Phiên bản v4.2 YOLO]
+[07:40:55] [INFO] MainApp: ============================================================
+[07:40:55] [INFO] database: [DB-Migration] Áp dụng Schema v1: Tạo các bảng cơ sở...
+[07:40:55] [INFO] database: [DB-Migration] Áp dụng Schema v2: Bổ sung cột session_id...
+[07:40:55] [INFO] database: [DB-Migration] Áp dụng Schema v3: Bổ sung presence_type & face_count...
+[07:40:55] [INFO] database: [DB] Database sẵn sàng tại: D:\TUAN TU\SMART_HOME\smart_home_MQTT\smart_home\laptop\data\smart_home.db (Schema Version: v3)
+[07:40:55] [INFO] modules.face_recognition_module: [Face] Đã nạp thành công mô hình YOLO Person Detection.
+[07:40:55] [INFO] modules.face_recognition_module: [Face] Chưa có dữ liệu sinh trắc học. Vui lòng đăng ký người dùng mới.
+[07:41:04] [INFO] modules.face_recognition_module: [Face] DeepFace model 'Facenet512' (opencv) đã nạp thành công.
+[07:41:04] [INFO] MainApp: [Main] Đang khởi động hệ thống...
+[07:41:09] [ERROR] modules.mqtt_handler: [MQTT] Lỗi Socket/Mạng khi khởi tạo: timed out
+[07:41:24] [INFO] MainApp: 
+  [Ctrl+C] Nhận tín hiệu ngắt từ hệ thống. Đang thoát...
+[07:41:24] [INFO] MainApp: [Main] Đang tắt hệ thống...
+[07:41:24] [INFO] modules.face_recognition_module: [Face] Tiến trình nhận diện sinh trắc học đã dừng an toàn.
+[07:41:24] [INFO] modules.mqtt_handler: [MQTT] Đã ngắt kết nối an toàn.
+[07:41:24] [INFO] MainApp: [Main] Đã tắt. Tạm biệt!
+[07:41:57] [INFO] MainApp: ============================================================
+[07:41:57] [INFO] MainApp:   Thiết kế hệ thống nhà thông minh dựa trên thói quen người dùng 
+[07:41:57] [INFO] MainApp:   [CHẾ ĐỘ CLI / DEBUG ĐỘC LẬP - Phiên bản v4.2 YOLO]
+[07:41:57] [INFO] MainApp: ============================================================
+[07:41:57] [INFO] database: [DB] Database sẵn sàng tại: D:\TUAN TU\SMART_HOME\smart_home_MQTT\smart_home\laptop\data\smart_home.db (Schema Version: v3)
+[07:41:57] [INFO] modules.face_recognition_module: [Face] Đã nạp thành công mô hình YOLO Person Detection.
+[07:41:57] [INFO] modules.face_recognition_module: [Face] Chưa có dữ liệu sinh trắc học. Vui lòng đăng ký người dùng mới.
+[07:42:02] [INFO] modules.face_recognition_module: [Face] DeepFace model 'Facenet512' (opencv) đã nạp thành công.
+[07:42:02] [INFO] MainApp: [Main] Đang khởi động hệ thống...
+[07:42:07] [ERROR] modules.mqtt_handler: [MQTT] Lỗi Socket/Mạng khi khởi tạo: timed out
+[07:42:18] [INFO] MainApp: 
+  [Ctrl+C] Nhận tín hiệu ngắt từ hệ thống. Đang thoát...
+[07:42:18] [INFO] MainApp: [Main] Đang tắt hệ thống...
+[07:42:18] [INFO] modules.face_recognition_module: [Face] Tiến trình nhận diện sinh trắc học đã dừng an toàn.
+[07:42:18] [INFO] modules.mqtt_handler: [MQTT] Đã ngắt kết nối an toàn.
+[07:42:18] [INFO] MainApp: [Main] Đã tắt. Tạm biệt!
+[11:51:51] [INFO] MainApp: ============================================================
+[11:51:51] [INFO] MainApp:   Thiết kế hệ thống nhà thông minh dựa trên thói quen người dùng 
+[11:51:51] [INFO] MainApp:   [CHẾ ĐỘ CLI / DEBUG ĐỘC LẬP - Phiên bản v4.2 YOLO]
+[11:51:51] [INFO] MainApp: ============================================================
+[11:51:51] [INFO] database: [DB] Database sẵn sàng tại: D:\TUAN TU\SMART_HOME\smart_home_MQTT\smart_home\laptop\data\smart_home.db (Schema Version: v3)
+[11:51:51] [INFO] modules.face_recognition_module: [Face] Đã nạp thành công mô hình YOLO Person Detection.
+[11:51:51] [INFO] modules.face_recognition_module: [Face] Chưa có dữ liệu sinh trắc học. Vui lòng đăng ký người dùng mới.
+[11:51:57] [INFO] modules.face_recognition_module: [Face] DeepFace model 'Facenet512' (opencv) đã nạp thành công.
+[11:51:57] [INFO] MainApp: [Main] Đang khởi động hệ thống...
+[11:51:57] [INFO] modules.mqtt_handler: [MQTT] Đang tiến hành kết nối tới 192.168.1.102:1883...
+[11:51:57] [INFO] modules.mqtt_handler: [MQTT] Đã thiết lập kết nối tới Broker 192.168.1.102
+[11:51:57] [INFO] MainApp: [Main] Đang nạp lịch sử ngữ cảnh (Warm-up LSTM)...
+[11:51:57] [INFO] modules.mqtt_handler: [MQTT] Trạng thái từ ESP32 Edge Node: ONLINE
+[11:51:57] [INFO] modules.mqtt_handler: [MQTT] ESP32 vừa khởi động. Khôi phục trạng thái để chống Lệch đồng bộ!
+[11:51:57] [INFO] MainApp: [Main] Chưa đủ dữ liệu Training để Warm-up, bỏ qua.
+[11:51:57] [INFO] modules.face_recognition_module: [Face] Tiến trình nhận diện sinh trắc học đã khởi động.
+[11:51:57] [INFO] MainApp: [Main] ✅ Hệ thống đã sẵn sàng!
+
+[11:52:01] [INFO] MainApp: [Sensor] 🌡 Nhiệt: 31.1°C | 💧 Ẩm: 73.1% | ☀️ Sáng: 880.8333 lux | 🚶‍♂️ PIR: CÓ
+[11:52:01] [INFO] MainApp: [AI Predict] 👤 unknown ➔ Đèn: BẬT 💡 (RGB: (0, 0, 0)) | Quạt: BẬT 🌀 | Nguồn: yolo_unknown_safe_fallback
+[11:52:02] [INFO] modules.face_recognition_module: [Face] Xác thực KHÁCH: GUEST (Độ tin cậy=N/A)
+[11:52:02] [INFO] ai_model: [AI] Đã reset context cho user=unknown.
+[11:52:02] [INFO] MainApp: [Main] User đổi sang guest nhưng đang ở shadow mode – bỏ qua AI can thiệp phần cứng.
+[11:52:13] [INFO] modules.face_recognition_module: [Face] Đang chụp 15 mẫu cho 'Tu'...
+[11:52:14] [INFO] modules.face_recognition_module: [Face] Trích xuất thành công mẫu 1/15
+[11:52:17] [INFO] modules.face_recognition_module: [Face] Trích xuất thành công mẫu 2/15
+[11:52:18] [INFO] modules.face_recognition_module: [Face] Trích xuất thành công mẫu 3/15
+[11:52:20] [INFO] modules.face_recognition_module: [Face] Trích xuất thành công mẫu 4/15
+[11:52:27] [INFO] modules.face_recognition_module: [Face] Trích xuất thành công mẫu 5/15
+[11:52:31] [INFO] modules.face_recognition_module: [Face] Trích xuất thành công mẫu 6/15
+[11:52:32] [INFO] modules.face_recognition_module: [Face] Xác thực KHÁCH: GUEST (Độ tin cậy=N/A)
+[11:52:32] [INFO] modules.face_recognition_module: [Face] Trích xuất thành công mẫu 7/15
+[11:52:36] [INFO] modules.face_recognition_module: [Face] Trích xuất thành công mẫu 8/15
+[11:52:37] [INFO] modules.face_recognition_module: [Face] Trích xuất thành công mẫu 9/15
+[11:52:39] [INFO] MainApp: [Sensor] 🌡 Nhiệt: 31.1°C | 💧 Ẩm: 73.1% | ☀️ Sáng: 880.8333 lux | 🚶‍♂️ PIR: KHÔNG
+[11:52:39] [INFO] modules.face_recognition_module: [Face] Trích xuất thành công mẫu 10/15
+[11:52:41] [INFO] modules.face_recognition_module: [Face] Trích xuất thành công mẫu 11/15
+[11:52:42] [INFO] modules.face_recognition_module: [Face] Trích xuất thành công mẫu 12/15
+[11:52:45] [INFO] modules.face_recognition_module: [Face] Trích xuất thành công mẫu 13/15
+[11:52:47] [INFO] modules.face_recognition_module: [Face] Trích xuất thành công mẫu 14/15
+[11:52:49] [INFO] modules.face_recognition_module: [Face] Trích xuất thành công mẫu 15/15
+[11:52:49] [INFO] modules.face_recognition_module: [Face] Đã đồng bộ 1 Vector khuôn mặt vào đĩa cứng (Định dạng JSON an toàn).
+[11:52:49] [INFO] modules.face_recognition_module: [Face] Đăng ký thành công: Tu (15 mẫu 512-D)
+[11:52:51] [INFO] MainApp: [Sensor] 🌡 Nhiệt: 31.1°C | 💧 Ẩm: 73.1% | ☀️ Sáng: 880.8333 lux | 🚶‍♂️ PIR: CÓ
+[11:52:52] [INFO] modules.face_recognition_module: [Face] Xác thực CHỦ NHÀ: USER_A (Độ tin cậy=93.0%)
+[11:52:52] [INFO] ai_model: [AI] Đã reset toàn bộ context người dùng.
+[11:52:52] [INFO] MainApp: [Main] User đổi sang user_a nhưng đang ở shadow mode – bỏ qua AI can thiệp phần cứng.
+[11:52:56] [INFO] MainApp: [Main] Đang tắt hệ thống...
